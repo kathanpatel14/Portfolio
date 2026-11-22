@@ -107,7 +107,7 @@ Accepted leads are recorded with these columns:
 4. Configure the production webhook URL in Tally.
 5. Submit fictional test leads and inspect n8n executions and Google Sheets.
 
-A sanitized workflow export and screenshots may be added later. The live webhook URL and credentials are intentionally not included.
+A sanitized workflow export is included as [`lead-qualification-workflow.json`](./lead-qualification-workflow.json). Screenshots may be added later. The live webhook path, spreadsheet ID, account credential reference, and instance metadata have been removed. After import, configure your own spreadsheet, credentials and webhook URL.
 
 ## Future enhancements
 
@@ -120,3 +120,18 @@ A sanitized workflow export and screenshots may be added later. The live webhook
 Never commit real customer data, credentials, private webhook URLs, or unredacted execution logs. Use fictional leads in public screenshots.
 
 **Project type:** Personal learning and portfolio project.
+
+## Implementation status and limitations
+
+This repository preserves the logic of an exported **learning project**. The included JSON is a **sanitized configuration sample**, not a verified production-ready automation. The export has not been end-to-end tested after sanitization.
+
+Items found during review of the export:
+
+- Validation currently checks that six fields are non-empty, including company and message; the intended requirements make those two fields optional.
+- Email formatting is not validated, and the budget test checks presence rather than a number strictly greater than zero.
+- Service validation checks for a non-empty mapped option label, rather than restricting the allowed service names.
+- The Warm switch rule only checks budget >= 2000, and the Cold rule checks budget < 2000. Add exclusive bounds and positive-budget validation.
+- The invalid-lead Respond to Webhook node has HTTP 400 configured, but no JSON response body. Both response nodes contain incorrect custom response headers.
+- No dedicated Google Sheets error branch or duplicate-delivery protection is configured in the exported workflow.
+
+**To complete:** correct the above in n8n, test the expected HTTP responses and acceptance cases, and export a new sanitized version.
