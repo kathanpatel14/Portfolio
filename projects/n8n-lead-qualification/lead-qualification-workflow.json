@@ -1,0 +1,535 @@
+{
+  "name": "Smart Lead Qualification System",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-qualification-demo",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -480,
+        0
+      ],
+      "id": "0b8dba9d-7571-45b1-8773-4bac455f253a",
+      "name": "Webhook",
+      "webhookId": "lead-qualification-demo"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "ed1750a4-c0b2-4d3e-aa0a-bfe985127ab4",
+              "leftValue": "={{ $json.body.data.fields[0].value }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "e3726f03-594a-4307-b883-bda79f164d11",
+              "leftValue": "={{ $json.body.data.fields[1].value }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "89ecedbd-c9df-4c00-b604-f130fcf360b7",
+              "leftValue": "={{ $json.body.data.fields[2].value }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "af310aa3-537c-4642-b213-9181b82219dd",
+              "leftValue": "={{ $json.body.data.fields[3].value }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f59bd029-a1bc-4b74-9f3c-f7e4cce02ef6",
+              "leftValue": "=\n{{ \n  $json.body.data.fields\n    .find(f => f.label === \"Service\")\n    ?.options.find(o => \n      o.id === $json.body.data.fields\n        .find(f => f.label === \"Service\")\n        ?.value[0]\n    )?.text ?? \"\"\n}}\n",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "af4b8373-783c-4606-a0a7-6a4c4579abdc",
+              "leftValue": "={{ $json.body.data.fields[5].value }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        -256,
+        0
+      ],
+      "id": "c6a5a8ce-9971-4f59-99d9-17bb3bc68dce",
+      "name": "If (Validate Lead)"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('Webhook').item.json.body.data.fields[3].value }}",
+                    "rightValue": 5000,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    },
+                    "id": "60b06321-bd55-4755-98b6-3d8c8804cbfa"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Hot"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "815fc9b7-560e-4416-8871-072f8c116d27",
+                    "leftValue": "={{ $('Webhook').item.json.body.data.fields[3].value }}",
+                    "rightValue": 2000,
+                    "operator": {
+                      "type": "number",
+                      "operation": "gte"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Warm"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "1c3ab2fb-1b60-4c62-b705-9e2e13abb6c1",
+                    "leftValue": "={{ $('Webhook').item.json.body.data.fields[3].value }}",
+                    "rightValue": 2000,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lt"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Cold"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.5,
+      "position": [
+        -16,
+        -32
+      ],
+      "id": "20730eb3-0c18-4d28-aae0-f8ef472d4ae7",
+      "name": "Switch (Classify Lead)"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Leads",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Name": "={{ $('Switch (Classify Lead)').item.json.body.data.fields[0].value }}",
+            "Email": "={{ $('Switch (Classify Lead)').item.json.body.data.fields[1].value }}",
+            "Company": "={{ $('Switch (Classify Lead)').item.json.body.data.fields[2].value }}",
+            "Budget": "={{ $('Switch (Classify Lead)').item.json.body.data.fields[3].value }}",
+            "Service": "=\n{{ \n  $('Webhook').first().json.body.data.fields\n    .find(f => f.label === \"Service\")\n    ?.options.find(o =>\n      o.id === $('Webhook').first().json.body.data.fields\n        .find(f => f.label === \"Service\")\n        ?.value[0]\n    )?.text ?? \"\"\n}}\n",
+            "Message": "={{ $('Switch (Classify Lead)').item.json.body.data.fields[5].value }}",
+            "Lead Status": "={{ $json.leadStatus }}",
+            "Timestamp": "={{$now.toFormat('yyyy-MM-dd HH:mm:ss')}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "displayName": "Company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget",
+              "displayName": "Budget",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service",
+              "displayName": "Service",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Status",
+              "displayName": "Lead Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        416,
+        -16
+      ],
+      "id": "445156d2-db4c-465a-8abe-ef594527b8a4",
+      "name": "Append row in sheet"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "=\n\n{{ JSON.stringify({\n  success: true,\n  message: \"Lead saved successfully\",\n  classification: $json[\"Lead Status\"]\n}) }}\n",
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "=",
+                "value": "=\n{{ {\n  success: true,\n  message: \"Lead saved successfully\",\n  classification: $json['Lead Status']\n} }}\n"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        592,
+        -16
+      ],
+      "id": "c35f79cf-b80a-4917-b7e2-593bd859ad16",
+      "name": "Respond to Webhook (Success Response)"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "options": {
+          "responseCode": 400,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Failure",
+                "value": "= {   \"success\": false,   \"message\": \"Lead validation failed. Check required fields and formats.\" }"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        -64,
+        208
+      ],
+      "id": "fa8bd7e8-797c-45fa-be93-512275049a1d",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9baf0c6b-1aba-4199-b8d7-0e4cec49eed4",
+              "name": "leadStatus",
+              "value": "Hot",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        256,
+        -192
+      ],
+      "id": "827b40ff-8f0c-4f99-90ea-2b9b67702969",
+      "name": "Hot"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f0452f46-faed-4e79-84da-7c230664e27a",
+              "name": "leadStatus",
+              "value": "Warm",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        240,
+        -16
+      ],
+      "id": "44e7c2d7-c868-4510-8576-c4378f67a02e",
+      "name": "Warm"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "18549c78-3b18-40d7-9821-8e884eba8b3b",
+              "name": "leadStatus",
+              "value": "Cold",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        256,
+        192
+      ],
+      "id": "06210b72-8ba7-4f91-ae44-a85821dc8fc7",
+      "name": "Cold"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If (Validate Lead)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If (Validate Lead)": {
+      "main": [
+        [
+          {
+            "node": "Switch (Classify Lead)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch (Classify Lead)": {
+      "main": [
+        [
+          {
+            "node": "Hot",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Warm",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Cold",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook (Success Response)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hot": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Warm": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cold": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "nodeGroups": [],
+  "tags": []
+}
